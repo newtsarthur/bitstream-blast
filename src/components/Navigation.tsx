@@ -1,10 +1,12 @@
-import { Home, BookOpen, ImageIcon, Trophy, Users } from "lucide-react";
+import { Home, BookOpen, ImageIcon, Trophy, Users, GraduationCap, Play } from "lucide-react";
 import { NavLink } from "./NavLink";
 
 const navItems = [
   { to: "/", label: "Início", icon: Home },
+  { to: "/conteudo", label: "Aprender", icon: GraduationCap },
   { to: "/conceitos", label: "Conceitos Teóricos", icon: BookOpen },
   { to: "/galeria", label: "Galeria de Mídias", icon: ImageIcon },
+  { to: "/tutorial", label: "Tutorial", icon: Play },
   { to: "/quiz", label: "Quiz Avaliativo", icon: Trophy },
   { to: "/equipe", label: "Sobre a Equipe", icon: Users },
 ];
