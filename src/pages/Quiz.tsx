@@ -1,7 +1,7 @@
-import { motion } from "framer-motion";
-import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, XCircle, RotateCcw, Trophy } from "lucide-react";
+import { CheckCircle2, XCircle, RotateCcw, Trophy, PartyPopper } from "lucide-react";
 
 const allQuestions = [
   {
@@ -81,15 +81,25 @@ const allQuestions = [
   }
 ];
 
+// Função para tocar áudio
+const playSound = (isCorrect: boolean) => {
+  const audioPath = isCorrect ? "/audio/acerto.mp3" : "/audio/erro.mp3";
+  const audio = new Audio(audioPath);
+  audio.volume = 0.5;
+  audio.play().catch(() => {
+    // Ignora erro se áudio não existir ainda
+  });
+};
+
 const Quiz = () => {
   const [currentQuiz, setCurrentQuiz] = useState<typeof allQuestions>([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [quizStarted, setQuizStarted] = useState(false);
+  const [showVictoryModal, setShowVictoryModal] = useState(false);
 
   const startQuiz = () => {
-    // Sortear 5 perguntas aleatórias
     const shuffled = [...allQuestions].sort(() => Math.random() - 0.5);
     const selected = shuffled.slice(0, 5);
     setCurrentQuiz(selected);
@@ -97,9 +107,15 @@ const Quiz = () => {
     setSelectedAnswers([]);
     setShowResults(false);
     setQuizStarted(true);
+    setShowVictoryModal(false);
   };
 
   const handleAnswer = (answerIndex: number) => {
+    const isCorrect = answerIndex === currentQuiz[currentQuestion].answer;
+    
+    // Toca o som de acerto ou erro
+    playSound(isCorrect);
+
     const newAnswers = [...selectedAnswers];
     newAnswers[currentQuestion] = answerIndex;
     setSelectedAnswers(newAnswers);
@@ -107,11 +123,23 @@ const Quiz = () => {
     if (currentQuestion < currentQuiz.length - 1) {
       setTimeout(() => {
         setCurrentQuestion(currentQuestion + 1);
-      }, 300);
+      }, 500);
     } else {
       setTimeout(() => {
+        // Verifica se acertou 100%
+        const finalAnswers = [...newAnswers];
+        let correctCount = 0;
+        currentQuiz.forEach((q, index) => {
+          if (finalAnswers[index] === q.answer) {
+            correctCount++;
+          }
+        });
+
+        if (correctCount === currentQuiz.length) {
+          setShowVictoryModal(true);
+        }
         setShowResults(true);
-      }, 300);
+      }, 500);
     }
   };
 
@@ -124,6 +152,51 @@ const Quiz = () => {
     });
     return correct;
   };
+
+  // Modal de Vitória (100%)
+  const VictoryModal = () => (
+    <AnimatePresence>
+      {showVictoryModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setShowVictoryModal(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            className="bg-card border-2 border-primary rounded-2xl p-8 max-w-md w-full text-center shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <PartyPopper className="w-16 h-16 text-primary mx-auto mb-4 animate-bounce" />
+            <h2 className="text-3xl font-bold neon-text mb-4">Parabéns!</h2>
+            <p className="text-muted-foreground mb-6">
+              Você acertou todas as questões! Excelente desempenho!
+            </p>
+            
+            {/* Animação GIF de vitória */}
+            <div className="mb-6 rounded-lg overflow-hidden">
+              <img
+                src="/video/anim.gif"
+                alt="Animação de vitória"
+                className="w-full h-auto max-h-48 object-contain mx-auto"
+              />
+            </div>
+
+            <Button
+              onClick={() => setShowVictoryModal(false)}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+            >
+              Ver Resultados
+            </Button>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 
   if (!quizStarted) {
     return (
@@ -158,71 +231,74 @@ const Quiz = () => {
     const percentage = (score / currentQuiz.length) * 100;
 
     return (
-      <div className="min-h-screen py-12 px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-3xl mx-auto"
-        >
-          <div className="text-center mb-8">
-            <Trophy className="w-16 h-16 text-primary mx-auto mb-4" />
-            <h1 className="text-4xl font-bold mb-2 neon-text">Resultado Final</h1>
-            <p className="text-2xl text-foreground">
-              Você acertou <span className="text-primary font-bold">{score}</span> de {currentQuiz.length} questões
-            </p>
-            <p className="text-3xl font-bold text-primary mt-4">{percentage.toFixed(0)}%</p>
-          </div>
+      <>
+        <VictoryModal />
+        <div className="min-h-screen py-12 px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-3xl mx-auto"
+          >
+            <div className="text-center mb-8">
+              <Trophy className="w-16 h-16 text-primary mx-auto mb-4" />
+              <h1 className="text-4xl font-bold mb-2 neon-text">Resultado Final</h1>
+              <p className="text-2xl text-foreground">
+                Você acertou <span className="text-primary font-bold">{score}</span> de {currentQuiz.length} questões
+              </p>
+              <p className="text-3xl font-bold text-primary mt-4">{percentage.toFixed(0)}%</p>
+            </div>
 
-          <div className="space-y-4 mb-8">
-            {currentQuiz.map((q, index) => {
-              const isCorrect = selectedAnswers[index] === q.answer;
-              return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className={`card-gradient p-6 rounded-xl border-2 ${
-                    isCorrect ? "border-green-500/50" : "border-red-500/50"
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    {isCorrect ? (
-                      <CheckCircle2 className="w-6 h-6 text-green-500 shrink-0 mt-1" />
-                    ) : (
-                      <XCircle className="w-6 h-6 text-red-500 shrink-0 mt-1" />
-                    )}
-                    <div className="flex-1">
-                      <p className="font-semibold mb-2 text-foreground">{q.question}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Sua resposta: <span className={isCorrect ? "text-green-500" : "text-red-500"}>
-                          {q.options[selectedAnswers[index]]}
-                        </span>
-                      </p>
-                      {!isCorrect && (
-                        <p className="text-sm text-green-500 mt-1">
-                          Resposta correta: {q.options[q.answer]}
-                        </p>
+            <div className="space-y-4 mb-8">
+              {currentQuiz.map((q, index) => {
+                const isCorrect = selectedAnswers[index] === q.answer;
+                return (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className={`card-gradient p-6 rounded-xl border-2 ${
+                      isCorrect ? "border-green-500/50" : "border-red-500/50"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      {isCorrect ? (
+                        <CheckCircle2 className="w-6 h-6 text-green-500 shrink-0 mt-1" />
+                      ) : (
+                        <XCircle className="w-6 h-6 text-red-500 shrink-0 mt-1" />
                       )}
+                      <div className="flex-1">
+                        <p className="font-semibold mb-2 text-foreground">{q.question}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Sua resposta: <span className={isCorrect ? "text-green-500" : "text-red-500"}>
+                            {q.options[selectedAnswers[index]]}
+                          </span>
+                        </p>
+                        {!isCorrect && (
+                          <p className="text-sm text-green-500 mt-1">
+                            Resposta correta: {q.options[q.answer]}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
+                  </motion.div>
+                );
+              })}
+            </div>
 
-          <div className="text-center">
-            <Button
-              onClick={startQuiz}
-              size="lg"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
-            >
-              <RotateCcw className="w-5 h-5 mr-2" />
-              Tentar Novamente
-            </Button>
-          </div>
-        </motion.div>
-      </div>
+            <div className="text-center">
+              <Button
+                onClick={startQuiz}
+                size="lg"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              >
+                <RotateCcw className="w-5 h-5 mr-2" />
+                Tentar Novamente
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      </>
     );
   }
 
