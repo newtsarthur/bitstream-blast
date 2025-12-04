@@ -82,13 +82,10 @@ const allQuestions = [
 ];
 
 // Função para tocar áudio
-const playSound = (isCorrect: boolean) => {
-  const audioPath = isCorrect ? "/audio/acerto.mp3" : "/audio/erro.mp3";
-  const audio = new Audio(audioPath);
+const playAudio = (file: string) => {
+  const audio = new Audio(file);
   audio.volume = 0.5;
-  audio.play().catch(() => {
-    // Ignora erro se áudio não existir ainda
-  });
+  audio.play().catch(() => {});
 };
 
 const Quiz = () => {
