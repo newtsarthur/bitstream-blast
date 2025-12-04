@@ -97,6 +97,8 @@ const Quiz = () => {
   const [showVictoryModal, setShowVictoryModal] = useState(false);
 
   const startQuiz = () => {
+    playAudio("/gota.mp3"); // 🔊 som ao iniciar
+  
     const shuffled = [...allQuestions].sort(() => Math.random() - 0.5);
     const selected = shuffled.slice(0, 5);
     setCurrentQuiz(selected);
@@ -106,6 +108,7 @@ const Quiz = () => {
     setQuizStarted(true);
     setShowVictoryModal(false);
   };
+
 
   const handleAnswer = (answerIndex: number) => {
     playAudio("/gota.mp3"); // 🔊 som ao clicar
