@@ -17,11 +17,14 @@ const Home = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mb-8 inline-block"
           >
-            <div className="relative">
-              <FileVideo className="w-24 h-24 text-primary mx-auto animate-pulse-neon" />
-              <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full" />
-            </div>
-          </motion.div>
+          <div className="relative flex justify-center">
+            <img
+              src="/Monitor.png"
+              alt="Monitor Icon"
+              className="w-28 h-28 mx-auto animate-pulse-neon drop-shadow-[0_0_20px_rgba(0,255,255,0.6)]"
+            />
+            <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full" />
+          </div>
 
           <motion.h1
             initial={{ opacity: 0 }}
