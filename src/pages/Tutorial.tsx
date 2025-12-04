@@ -7,7 +7,7 @@ const Tutorial = () => {
   // Exemplo: Se o link do seu vídeo for https://www.youtube.com/watch?v=SEU_ID_AQUI
   // Cole apenas o ID (a parte após "v=") na variável abaixo
   // =====================================================
-  const youtubeVideoId = "dQw4w9WgXcQ"; // <-- COLE SEU ID DE VÍDEO AQUI
+  const youtubeVideoId = "fPH9bZp1Rc0"; // <-- COLE SEU ID DE VÍDEO AQUI
 
   return (
     <div className="min-h-screen py-12 px-6">
