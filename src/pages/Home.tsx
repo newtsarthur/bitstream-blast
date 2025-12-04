@@ -25,7 +25,7 @@ const Home = () => {
             />
             <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full" />
           </div>
-
+        </motion.div>
           <motion.h1
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
