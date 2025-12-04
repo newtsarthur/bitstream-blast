@@ -111,37 +111,37 @@ const Quiz = () => {
   };
 
   const handleAnswer = (answerIndex: number) => {
+    playAudio("/gota.mp3"); // 🔊 som ao clicar
+  
     const isCorrect = answerIndex === currentQuiz[currentQuestion].answer;
-    
-    // Toca o som de acerto ou erro
-    playSound(isCorrect);
-
+  
     const newAnswers = [...selectedAnswers];
     newAnswers[currentQuestion] = answerIndex;
     setSelectedAnswers(newAnswers);
-
+  
     if (currentQuestion < currentQuiz.length - 1) {
       setTimeout(() => {
         setCurrentQuestion(currentQuestion + 1);
       }, 500);
     } else {
       setTimeout(() => {
-        // Verifica se acertou 100%
-        const finalAnswers = [...newAnswers];
         let correctCount = 0;
         currentQuiz.forEach((q, index) => {
-          if (finalAnswers[index] === q.answer) {
-            correctCount++;
-          }
+          if (newAnswers[index] === q.answer) correctCount++;
         });
-
+  
         if (correctCount === currentQuiz.length) {
+          playAudio("/acerto.mp3"); // VITÓRIA 🎉
           setShowVictoryModal(true);
+        } else {
+          playAudio("/erro.mp3"); // ERRO ❌
         }
+  
         setShowResults(true);
       }, 500);
     }
   };
+
 
   const calculateScore = () => {
     let correct = 0;
