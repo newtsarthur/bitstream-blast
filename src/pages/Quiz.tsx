@@ -180,7 +180,7 @@ const Quiz = () => {
             {/* Animação GIF de vitória */}
             <div className="mb-6 rounded-lg overflow-hidden">
               <img
-                src="/video/anim.gif"
+                src="/anim.gif"
                 alt="Animação de vitória"
                 className="w-full h-auto max-h-48 object-contain mx-auto"
               />
